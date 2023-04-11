@@ -112,7 +112,9 @@ void DemoTransportCtl::OnSessionCreate(const fw::ID& sessionid)
     if (sessionItor == m_sessStreamCtlMap.end())
     {
         m_sessStreamCtlMap[sessionid] = std::make_shared<SessionStreamController>();
-        m_sessStreamCtlMap[sessionid]->StartSessionStreamCtl(sessionid, renoccConfig, shared_from_this());
+        m_sessStreamCtlMap[sessionid]->StartSessionStreamCtl(sessionid,
+                                                             new RenoCongestionContrl(renoccConfig),
+                                                             shared_from_this());
     }
     else
     {

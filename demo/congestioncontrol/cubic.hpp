@@ -36,45 +36,37 @@ public:
 
         if (lossEvent.valid) {
             SPDLOG_TRACE("lossEvent");
-//            m_cwnd = cubic_.CongestionWindowAfterPacketLoss(m_cwnd * 1000)/1000;
-            m_kcwnd = cubic_.CongestionWindowAfterPacketLoss(m_kcwnd);
-            m_ssThresh = m_cwnd;
+            if(InSlowStart()){
+//                m_kcwnd -= quic::kDefaultTCPMSS;
+                m_kcwnd /= 2;
+            }else{
+                m_kcwnd = cubic_.CongestionWindowAfterPacketLoss(m_kcwnd);
+                m_kssThresh =m_kcwnd;
+            }
+
+            if(m_kcwnd < m_kminCwnd){
+                m_kcwnd = m_kminCwnd;
+            }
         }
 
         if (ackEvent.valid) {
             SPDLOG_TRACE("ackEvent");
-//            auto rtt = rttstats.smoothed_rtt();
-//            if(m_dmin.IsZero()){
-//                m_dmin = rtt;
-//            }else{
-//                if( m_dmin > rtt) {
-//                    m_dmin = rtt;
-//                }
-//            }
-
-            if(InSlowStart()){
-//                m_cwnd += 1 ;
-                m_kcwnd += 1000 ;
+            if(InSlowStart()) {
+                m_kcwnd += quic::kDefaultTCPMSS;
             }else{
-                m_kcwnd = cubic_.CongestionWindowAfterAck(1000, m_kcwnd,
+                m_kcwnd = cubic_.CongestionWindowAfterAck(quic::kDefaultTCPMSS, m_kcwnd,
                                                           rttstats.MinOrInitialRtt(),ackEvent.recvstic);
-//                if(m_cwndCnt > cnt){
-//                    m_cwndCnt = 0;
-//                    m_cwnd +=1;
-//                }else{
-//                    m_cwndCnt += 1;
-//                }
-
+                if( m_kcwnd > m_kmaxCwnd){
+                    m_kcwnd = m_kmaxCwnd;
+                }
             }
-
         }
     }
 
     uint32_t GetCWND() override {
-//        SPDLOG_DEBUG(" {}", m_cwnd);
-//        return m_cwnd;
         SPDLOG_DEBUG(" {}", m_kcwnd);
-        return BoundCwnd(m_kcwnd/1000);
+//        return m_kcwnd/quic::kDefaultTCPMSS;
+        return BoundCwnd(m_kcwnd)/quic::kDefaultTCPMSS;
 
     }
 
@@ -88,19 +80,21 @@ private:
 
     uint32_t BoundCwnd(uint32_t trySetCwnd)
     {
-        return std::max(m_minCwnd, std::min(trySetCwnd, m_maxCwnd));
+        return std::max(m_kminCwnd, std::min(trySetCwnd, m_kmaxCwnd));
     }
 
     quic::CubicBytes cubic_;
 
     uint32_t m_kcwnd{1000};
-    uint32_t m_cwnd{1};
-    uint32_t m_cwndCnt{0}; /** in congestion avoid phase, used for counting ack packets*/
-    Duration m_dmin{Duration::Zero()};
+//    uint32_t m_cwnd{1};
+//    uint32_t m_cwndCnt{0}; /** in congestion avoid phase, used for counting ack packets*/
+//    Duration m_dmin{Duration::Zero()};
 
-    uint32_t m_minCwnd{1};
-    uint32_t m_maxCwnd{128};
-    uint32_t m_ssThresh{32};/** slow start threshold*/
+//    uint32_t m_minCwnd{1};
+//    uint32_t m_maxCwnd{128};
+    uint32_t m_kminCwnd = 1 * quic::kDefaultTCPMSS;
+    uint32_t m_kmaxCwnd = 128 * quic::kDefaultTCPMSS;
+//    uint32_t m_ssThresh{32};/** slow start threshold*/
     uint32_t m_kssThresh{32000};/** slow start threshold*/
 
 };

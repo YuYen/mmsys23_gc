@@ -10,13 +10,13 @@
 #include "utils/rttstats.h"
 #include "utils/transporttime.h"
 #include "utils/defaultclock.hpp"
-#include "sessionstreamcontroller.hpp"
 #include "packettype.h"
 
 enum class CongestionCtlType : uint8_t
 {
     none = 0,
-    reno = 1
+    reno = 1,
+    cubic = 2
 };
 
 struct LossEvent
@@ -48,7 +48,8 @@ struct AckEvent
     bool valid{ false };
     DataPacket ackPacket;
     Timepoint sendtic{ Timepoint::Infinite() };
-    Timepoint losttic{ Timepoint::Infinite() };
+//    Timepoint losttic{ Timepoint::Infinite() };
+    Timepoint recvstic{ Timepoint::Infinite() };
 
     std::string DebugInfo() const
     {
@@ -59,7 +60,7 @@ struct AckEvent
            << "dataid: " << ackPacket.pieceId << " "
            << "} "
            << "sendtic: " << sendtic.ToDebuggingValue() << " "
-           << "losttic: " << losttic.ToDebuggingValue() << " ";
+           << "recvstic: " << recvstic.ToDebuggingValue() << " ";
         return ss.str();
     }
 };
@@ -278,9 +279,11 @@ private:
         {
             /// add cwnd for each RTT
             m_cwndCnt++;
-            m_cwnd += m_cwndCnt / m_cwnd;
-            if (m_cwndCnt == m_cwnd)
+//            m_cwnd += m_cwndCnt / m_cwnd;
+//            if (m_cwndCnt == m_cwnd)
+            if (m_cwndCnt >= m_cwnd)
             {
+                m_cwnd += 1;
                 m_cwndCnt = 0;
             }
             SPDLOG_DEBUG("not in slow start state,new m_cwndCnt:{} new m_cwnd:{}",

@@ -7,6 +7,7 @@
 #include "congestioncontrol.hpp"
 #include "basefw/base/log.h"
 #include "packettype.h"
+//#include "thirdparty/quiche/quic_types.h"
 
 class SessionStreamCtlHandler
 {
@@ -21,9 +22,13 @@ public:
 class PacketSender
 {
 public:
+//    PacketSender(CongestionCtlAlgo* congestionCtlAlgo){
+//        m_congestAlgo.reset(congestionCtlAlgo);
+//    };
+
+
     bool CanSend(uint32_t cwnd, uint32_t downloadingPktCnt)
     {
-
         auto rt = false;
         if (cwnd > downloadingPktCnt)
         {
@@ -42,7 +47,8 @@ public:
         SPDLOG_TRACE("cwnd:{},downloadingPktCnt:{}", cwnd, downloadingPktCnt);
         if (cwnd >= downloadingPktCnt)
         {
-            return std::min(cwnd - downloadingPktCnt, 8U);
+//            return std::min(cwnd - downloadingPktCnt, quic::MaxOneTimeSentCount);
+            return std::min(cwnd - downloadingPktCnt, 16U);
         }
         else
         {
@@ -50,6 +56,7 @@ public:
         }
     }
 
+    std::unique_ptr<CongestionCtlAlgo> m_congestAlgo;
 };
 
 /// SessionStreamController is the single session delegate inside transport module.
@@ -70,7 +77,7 @@ public:
         StopSessionStreamCtl();
     }
 
-    void StartSessionStreamCtl(const basefw::ID& sessionId, RenoCongestionCtlConfig& ccConfig,
+    void StartSessionStreamCtl(const basefw::ID& sessionId, CongestionCtlAlgo* congAlgo,
             std::weak_ptr<SessionStreamCtlHandler> ssStreamHandler)
     {
         if (isRunning)
@@ -82,11 +89,11 @@ public:
         m_sessionId = sessionId;
         m_ssStreamHandler = ssStreamHandler;
         // cc
-        m_ccConfig = ccConfig;
-        m_congestionCtl.reset(new RenoCongestionContrl(m_ccConfig));
+        m_congestionCtl.reset(congAlgo);
 
         // send control
         m_sendCtl.reset(new PacketSender());
+//        m_sendCtl.reset(new PacketSender( congAlgo));
 
         //loss detection
         m_lossDetect.reset(new DefaultLossDetectionAlgo());
@@ -229,6 +236,7 @@ public:
             ackEvent.ackPacket.seq = seq;
             ackEvent.ackPacket.pieceId = datapiece;
             ackEvent.sendtic = inflightPkt.sendtic;
+            ackEvent.recvstic = recvtic;
             LossEvent lossEvent; // if we detect loss when ACK event, we may do loss check here.
             m_congestionCtl->OnDataAckOrLoss(ackEvent, lossEvent, m_rttstats);
 
@@ -315,9 +323,9 @@ private:
 
     basefw::ID m_sessionId;/** The remote peer id defines the session id*/
     basefw::ID m_taskid;/**The file id downloading*/
-    RenoCongestionCtlConfig m_ccConfig;
-    std::unique_ptr<CongestionCtlAlgo> m_congestionCtl;
+    // RenoCongestionCtlConfig m_ccConfig;
     std::unique_ptr<LossDetectionAlgo> m_lossDetect;
+    std::unique_ptr<CongestionCtlAlgo> m_congestionCtl;
     std::weak_ptr<SessionStreamCtlHandler> m_ssStreamHandler;
     InFlightPacketMap m_inflightpktmap;
 

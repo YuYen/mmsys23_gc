@@ -10,7 +10,12 @@ set(DEMO_SOURCES
         ${PROJECT_SOURCE_DIR}/demo/utils/defaultclock.cpp
         ${PROJECT_SOURCE_DIR}/demo/utils/thirdparty/quiche/quic_clock.cpp
         ${PROJECT_SOURCE_DIR}/demo/utils/thirdparty/quiche/quic_time.cpp
-        ${PROJECT_SOURCE_DIR}/demo/utils/thirdparty/quiche/rtt_stats.cpp)
+        ${PROJECT_SOURCE_DIR}/demo/utils/thirdparty/quiche/rtt_stats.cpp
+        ${PROJECT_SOURCE_DIR}/demo/cubictransportcontroller.cpp
+        ../demo/utils/thirdparty/quiche/cubic_bytes.cpp
+        ../demo/utils/thirdparty/quiche/cubic_bytes.h
+        ../demo/utils/thirdparty/quiche/quic_types.h
+        )
 
 add_executable(MPDtest ${APP_SOURCES} ${DEMO_SOURCES}) # client node
 target_link_libraries(MPDtest libp2p_lab_module.a ${BOOST_LIBRARIES} pthread ssl crypto dl)

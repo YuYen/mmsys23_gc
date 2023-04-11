@@ -168,6 +168,9 @@ namespace quic {
                 std::min(target_congestion_window,
                          current_congestion_window + acked_bytes_count_ / 2);
 
+//        SPDLOG_DEBUG("elapsed_time: {}, offset+half: {}", elapsed_time, offset);
+//        SPDLOG_DEBUG("target_congestion_window: {}, current_congestion_window+half: {}", target_congestion_window, current_congestion_window + acked_bytes_count_ / 2);
+
 //        QUICHE_DCHECK_LT(0u, estimated_tcp_congestion_window_);
         // Increase the window by approximately Alpha * 1 MSS of bytes every
         // time we ack an estimated tcp window of bytes.  For small

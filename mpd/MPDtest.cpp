@@ -7,6 +7,7 @@
 #include "MPD.h"
 #include "configjson.hpp"
 #include "demo/demotransportcontroller.hpp"
+#include "demo/cubictransportcontroller.hpp"
 #include "playerevent.h"
 #include <iostream>
 
@@ -25,12 +26,16 @@ int main(int argc, char** argv)
     std::vector<spdlog::sink_ptr> sinks;
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
     // uncomment the line below to write log to file, note: the log file size will is nearly same as the resource file
-    //sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("logfile.txt"));
+//    sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("logfile.txt"));
     auto combined_logger = std::make_shared<spdlog::logger>("mpdlogger", begin(sinks), end(sinks));
     //combined_logger->set_pattern("[%D %H:%M:%S.%e][%s %!: %#] %v");
     combined_logger->set_pattern("[%D %H:%M:%S.%e][%l][%s:%# %!()]%v");
-    combined_logger->set_level(spdlog::level::debug);
-    combined_logger->flush_on(spdlog::level::debug);
+//    combined_logger->set_level(spdlog::level::debug);
+//    combined_logger->flush_on(spdlog::level::debug);
+     combined_logger->set_level(spdlog::level::off);
+     combined_logger->flush_on(spdlog::level::off);
+//     combined_logger->set_level(spdlog::level::trace);
+//     combined_logger->flush_on(spdlog::level::trace);
     spdlog::set_default_logger(combined_logger);
 
     ////////////////////parse initiate parameters//////////////////////////////
@@ -50,13 +55,18 @@ int main(int argc, char** argv)
     // create your TransportCtlConfig class here. The parameters inside this class will be passed to
     // your TransportController.
 
-    std::shared_ptr<DemoTransportCtlConfig> myTransportCtlConfig = std::make_shared<DemoTransportCtlConfig>();
+//     std::shared_ptr<DemoTransportCtlConfig> myTransportCtlConfig = std::make_shared<DemoTransportCtlConfig>();
+//     myTransportCtlConfig->minWnd = 1;
+//     myTransportCtlConfig->maxWnd = 64;
+
+    //// CUBIC
+    std::shared_ptr<CubicTransportCtlConfig> myTransportCtlConfig = std::make_shared<CubicTransportCtlConfig>();
     // these values will be passed to demo transport module
-    myTransportCtlConfig->minWnd = 1;
-    myTransportCtlConfig->maxWnd = 64;
+
 
     // Create your TransportCtlFactory
-    std::shared_ptr<DemoTransportCtlFactory> myTransportFactory = std::make_shared<DemoTransportCtlFactory>();
+//     std::shared_ptr<DemoTransportCtlFactory> myTransportFactory = std::make_shared<DemoTransportCtlFactory>();
+    std::shared_ptr<CubicTransportCtlFactory> myTransportFactory = std::make_shared<CubicTransportCtlFactory>();
 
     // assemble transport controller config and transport controller factory together
     myTransportModuleSettings->transportCtlConfig = myTransportCtlConfig;
