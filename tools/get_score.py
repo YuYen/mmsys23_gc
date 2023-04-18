@@ -53,7 +53,7 @@ def get_score():
         return 0
 
     if T > DT:
-        print(f"Timeout！video duration: {DT} s, download duration: {T} s, total data downloaded: {DS} MB, "
+        print(f"Timeout! video duration: {DT} s, download duration: {T} s, total data downloaded: {DS} MB, "
               f"total data downloaded (no duplicate): {DS_ / 1024} MB \n")
         return 0
 

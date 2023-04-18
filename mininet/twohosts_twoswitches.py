@@ -16,8 +16,11 @@ from mininet.log import info, setLogLevel, warning
 import shlex
 import os
 
+os.environ['LD_PROFILE'] = 'gmon.out'
+
+
 server_num = 2  # data nodes number
-curr_dir = os.getcwd()
+curr_dir = os.path.join(os.getcwd(), "mininet")
 """
 we assume  curr_dir/ has following struct
    ./bin/servertest datanode program
