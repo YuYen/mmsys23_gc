@@ -16,7 +16,7 @@ from mininet.log import info, setLogLevel, warning
 import shlex
 import os
 
-os.environ['LD_PROFILE'] = 'gmon.out'
+# os.environ['LD_PROFILE'] = 'gmon.out'
 
 
 server_num = 2  # data nodes number

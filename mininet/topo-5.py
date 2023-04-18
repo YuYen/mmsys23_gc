@@ -155,7 +155,7 @@ if __name__ == '__main__':
         server_nodes.append(net.getNodeByName(node_name))
     for i in range(server_num):
         # use absolute dir to start servertest program, and the parameter is the upnode config json file
-        server_start_cmd = f'{curr_dir}/bin/servertest {curr_dir}/bin/upnode_mn{i}.json '
+        server_start_cmd = f'{curr_dir}/bin/servertest {curr_dir}/config/upnode_mn{i}.json '
         server_std_f = open(f'server{i}stdout', mode='w')
         server_std_f_ls.append(server_std_f)
         server_start_cmd_args = shlex.split(server_start_cmd)
