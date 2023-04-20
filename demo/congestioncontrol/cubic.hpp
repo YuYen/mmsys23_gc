@@ -37,12 +37,20 @@ public:
         if (lossEvent.valid) {
             SPDLOG_TRACE("lossEvent");
             if(InSlowStart()){
-//                m_kcwnd -= quic::kDefaultTCPMSS;
-                m_kcwnd /= 2;
+                if(m_state == 0){
+                    if(m_kcwnd < 2 * m_initkcwnd){
+                        m_kcwnd -= quic::kDefaultTCPMSS;
+                    }else{
+                        m_kcwnd /= 2;
+                    }
+                }else{
+                    m_kcwnd = m_prekCwnd;
+                }
+
             }else{
                 m_kcwnd = cubic_.CongestionWindowAfterPacketLoss(m_kcwnd);
-                m_kssThresh =m_kcwnd;
             }
+            m_kssThresh =m_kcwnd;
 
             if(m_kcwnd < m_kminCwnd){
                 m_kcwnd = m_kminCwnd;
@@ -64,13 +72,20 @@ public:
     }
 
     uint32_t GetCWND() override {
-        SPDLOG_DEBUG(" {}", m_kcwnd);
-//        return m_kcwnd/quic::kDefaultTCPMSS;
         return BoundCwnd(m_kcwnd)/quic::kDefaultTCPMSS;
+    }
 
+    void UpdateState() override{
+        if(!InSlowStart()){
+            m_prekCwnd = m_kcwnd;
+            m_kssThresh *= 2;
+            m_state = 1;
+        }
     }
 
 private:
+
+
 
     bool InSlowStart()
     {
@@ -85,16 +100,20 @@ private:
 
     quic::CubicBytes cubic_;
 
-    uint32_t m_kcwnd{1000};
+    uint32_t m_kcwnd{3000};
+    uint32_t m_initkcwnd{3000};
 //    uint32_t m_cwnd{1};
 //    uint32_t m_cwndCnt{0}; /** in congestion avoid phase, used for counting ack packets*/
 //    Duration m_dmin{Duration::Zero()};
 
 //    uint32_t m_minCwnd{1};
 //    uint32_t m_maxCwnd{128};
+
     uint32_t m_kminCwnd = 1 * quic::kDefaultTCPMSS;
     uint32_t m_kmaxCwnd = 128 * quic::kDefaultTCPMSS;
 //    uint32_t m_ssThresh{32};/** slow start threshold*/
     uint32_t m_kssThresh{32000};/** slow start threshold*/
 
+    uint32_t m_prekCwnd{1000};
+    uint8_t m_state = 0;
 };

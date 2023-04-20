@@ -60,13 +60,23 @@ bool CubicTransportCtl::StartTransportController(TransportDownloadTaskInfo tansD
     {
         isRunning = true;
     }
-    SPDLOG_DEBUG("taskid: {}", tansDlTkInfo.m_rid.ToLogStr());
+
+    SPDLOG_DEBUG("taskid: {}, file length: {}", tansDlTkInfo.m_rid.ToLogStr(), tansDlTkInfo.m_filelength);
 
     m_transctlHandler = transCtlHandler;
 
     m_multipathscheduler.reset(
             new RRMultiPathScheduler(m_tansDlTkInfo.m_rid, m_sessStreamCtlMap, m_downloadPieces, m_lostPiecesl));
     m_multipathscheduler->StartMultiPathScheduler(shared_from_this());
+
+////////////////
+//    m_requestedCount = 0;
+//    m_totalPieceCount = (tansDlTkInfo.m_filelength + 1024 - 1) / 1024;
+//    OnRequestDownloadPieces(100U);
+//    dataLog = new uint8_t[m_totalPieceCount];
+//    std::memset(dataLog, 0, sizeof(dataLog));
+////////////////
+
     return true;
 }
 
@@ -75,6 +85,21 @@ bool CubicTransportCtl::StartTransportController(TransportDownloadTaskInfo tansD
 void CubicTransportCtl::StopTransportController()
 {
     SPDLOG_DEBUG("Stop Transport Controller isRunning = {}", isRunning);
+    //////////////////////////
+//    std::vector<uint32_t> vec = {};
+//    auto ptr = dataLog;
+//    for(uint32_t i=0; i<m_totalPieceCount;i++){
+//        if(*ptr == 0){
+//            vec.push_back(i);
+//        }
+//        ptr++;
+//    }
+//    delete[] dataLog;
+//    SPDLOG_DEBUG("missing_len: {}, unfinish_id: {}", vec.size(), vec);
+//    SPDLOG_DEBUG("Stop Transport Controller isRunning = {}", isRunning);
+    //////////////////////////
+
+
     if (!isRunning)
     {
         return;
@@ -177,6 +202,11 @@ void CubicTransportCtl::OnSessionDestory(const fw::ID& sessionid)
  */
 void CubicTransportCtl::OnPieceTaskAdding(std::vector<int32_t>& datapiecesVec)
 {
+
+//    m_requestedCount += datapiecesVec.size();
+//    SPDLOG_DEBUG("datapiecesVec {}", datapiecesVec);
+//    SPDLOG_DEBUG("max_piece_id {}", *std::max_element(datapiecesVec.begin(), datapiecesVec.end()));
+
     for (auto&& dataPiece: datapiecesVec)
     {
         auto rt = m_downloadPieces.emplace(dataPiece);
@@ -227,6 +257,10 @@ void CubicTransportCtl::OnDownloadTaskReset()
 void CubicTransportCtl::OnDataPiecesReceived(const fw::ID& sessionid, uint32_t seq, int32_t datapiece, uint64_t tic_us)
 {
     SPDLOG_TRACE("session = {}, seq ={},datapiece = {},tic_us = {}",sessionid.ToLogStr(),seq,datapiece,tic_us);
+    //////////////
+//    dataLog[datapiece] = 1U;
+    //////////////
+
     Timepoint recvtic = Clock::GetClock()->CreateTimeFromMicroseconds(tic_us);
     // call session control firstly to change cwnd first
     auto&& sessionItor = m_sessStreamCtlMap.find(sessionid);
@@ -276,6 +310,11 @@ void CubicTransportCtl::OnDataSent(const fw::ID& sessionid, const std::vector<in
  * */
 void CubicTransportCtl::OnLossDetectionAlarm()
 {
+    // still piece unrequested
+//    if(HasUnrequestedPieces()){
+//        OnRequestDownloadPieces(100U);
+//    }
+
     SPDLOG_TRACE("CubicTransportCtl::OnLossDetectionAlarm()");
     // Step 1: Check loss in each session
     for (auto&& sessStreamItor: m_sessStreamCtlMap)

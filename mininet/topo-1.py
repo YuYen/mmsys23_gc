@@ -121,7 +121,14 @@ if __name__ == '__main__':
 
     # config
     client_left_opts = {"bw": 1000, "delay": "10ms", "max_queue_size": 200}
-    btlink_opts = {"bw": 10, "delay": "30ms", "loss1": 1, "loss2": 1, "max_queue_size": 100}
+    # btlink_opts = {"bw": 10, "delay": "30ms", "loss1": 1, "loss2": 1, "max_queue_size": 100}
+    # serverlink_opts = [
+    #     {"delay": "5ms"},
+    #     {"delay": "10ms"},
+    #     {"delay": "15ms"},
+    #     {"delay": "20ms"}
+    # ]
+    btlink_opts = {"bw": 10, "delay": "10ms", "loss1": 5, "loss2": 5, "max_queue_size": 100}
     serverlink_opts = [
         {"delay": "5ms"},
         {"delay": "10ms"},

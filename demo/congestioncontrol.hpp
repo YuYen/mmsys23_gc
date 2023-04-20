@@ -152,6 +152,8 @@ public:
 
 //    virtual uint32_t GetFreeCWND() = 0;
 
+    virtual void UpdateState() = 0;
+
 };
 
 /// config or setting for specific cc algo
@@ -213,6 +215,9 @@ public:
     }
 
 //    virtual uint32_t GetFreeCWND() = 0;
+
+    void UpdateState() override{
+    }
 
 private:
 

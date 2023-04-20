@@ -118,6 +118,12 @@ public:
 
     void OnRequestDownloadPieces(uint32_t maxpiececnt) override;
 
+//    bool HasUnrequestedPieces(){
+//        SPDLOG_TRACE("req {} total {}", m_requestedCount, m_totalPieceCount);
+//
+//        return m_requestedCount < m_totalPieceCount;
+//    };
+
 private:
 
     bool isRunning{ false };
@@ -129,6 +135,13 @@ private:
     std::set<DataNumber> m_lostPiecesl;/// lost packets will be stored here till retransmission
     CubicCongestionCtlConfig cubicConfig;
     std::map<basefw::ID, std::shared_ptr<SessionStreamController>> m_sessStreamCtlMap;/// map session id to sessionstream
+
+//    uint32_t m_totalPieceCount;
+//    uint32_t m_requestedCount;
+//    uint8_t* dataLog;
+//    int32_t* m_recPieceQueue;
+//    int32_t* downloadPiecePtr;
+
 };
 
 /** @class A demo TransportController used to create CubicTransportCtl

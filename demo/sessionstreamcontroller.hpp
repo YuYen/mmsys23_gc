@@ -69,6 +69,9 @@ public:
     SessionStreamController()
     {
         SPDLOG_TRACE("");
+
+        clock_ = DefaultClock::GetClock();
+        lastCheckedTime = clock_->Now().ToDebuggingValue();
     }
 
     ~SessionStreamController()
@@ -135,7 +138,13 @@ public:
             return false;
         }
 
-        return m_sendCtl->CanSend(m_congestionCtl->GetCWND(), GetInFlightPktNum());
+//        return m_sendCtl->CanSend(m_congestionCtl->GetCWND(), GetInFlightPktNum());
+        ////////////////
+        auto cwnd = m_congestionCtl->GetCWND();
+
+        SPDLOG_DEBUG("sid: {}, cwnd: {}", m_sessionId.ToStr(), cwnd);
+        return m_sendCtl->CanSend(cwnd, GetInFlightPktNum());
+        ////////////////
     }
 
     uint32_t CanRequestPktCnt()
@@ -254,6 +263,21 @@ public:
     void OnLossDetectionAlarm()
     {
         DoAlarmTimeoutDetection();
+
+        auto now = clock_->Now().ToDebuggingValue();
+        if (now - lastCheckedTime > checkPeriod){
+            auto curRttus = m_rttstats.SmoothedOrInitialRtt().ToMicroseconds();
+            SPDLOG_DEBUG("check RTT pre: {}, cur: {}", preRTTus, curRttus);
+
+            if (curRttus - preRTTus < preRTTus/8){
+                SPDLOG_DEBUG("update cubic_state");
+                m_congestionCtl->UpdateState();
+            }
+
+            preRTTus = curRttus;
+            lastCheckedTime = now;
+            checkPeriod = std::max( std::min(curRttus * 10, maxCheckPeriod), minCheckPeriod);
+        }
     }
 
     void InformLossUp(LossEvent& loss)
@@ -331,5 +355,16 @@ private:
 
     std::unique_ptr<PacketSender> m_sendCtl;
     RttStats m_rttstats;
+
+    const QuicClock *clock_;
+
+//    QuicTime::Delta checkPeriod = QuicTime::Delta::FromSeconds(3);
+    int64_t minCheckPeriod = 2 * 1000 * 1000;
+    int64_t maxCheckPeriod = 10 * 1000 * 1000;
+    int64_t checkPeriod = 2 * 1000 * 1000;
+    int64_t lastCheckedTime = 0;
+//    QuicTime lastCheckedTime = QuicTime::Zero();
+    int64_t preRTTus = 0;
+    int rttVote = 0;
 };
 
