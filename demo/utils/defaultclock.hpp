@@ -6,9 +6,9 @@
 #include "demo/utils/thirdparty/quiche/quic_clock.h"
 #include <chrono>
 
-using quic::QuicClock;
-using quic::QuicTime;
-using quic::QuicWallTime;
+using basefw::quic::QuicClock;
+using basefw::quic::QuicTime;
+using basefw::quic::QuicWallTime;
 
 /// use std::chrono::steady timer implement the QuicClock Interface
 class DefaultClock : public QuicClock

@@ -187,11 +187,13 @@ void CubicTransportCtl::OnSessionDestory(const fw::ID& sessionid)
     if (sessionItor == m_sessStreamCtlMap.end())
     {
         // warn: try to destroy a session we don't know
+        SPDLOG_WARN(" try to destroy a session we don't know");
     }
     else
     {
         m_sessStreamCtlMap[sessionid]->StopSessionStreamCtl();
         m_sessStreamCtlMap[sessionid].reset();
+        m_sessStreamCtlMap.erase(sessionid);
     }
 
 }
@@ -204,7 +206,7 @@ void CubicTransportCtl::OnPieceTaskAdding(std::vector<int32_t>& datapiecesVec)
 {
 
 //    m_requestedCount += datapiecesVec.size();
-//    SPDLOG_DEBUG("datapiecesVec {}", datapiecesVec);
+    SPDLOG_DEBUG("datapiecesVec {}", datapiecesVec);
 //    SPDLOG_DEBUG("max_piece_id {}", *std::max_element(datapiecesVec.begin(), datapiecesVec.end()));
 
     for (auto&& dataPiece: datapiecesVec)

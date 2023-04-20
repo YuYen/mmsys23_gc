@@ -15,7 +15,7 @@ public:
 
     explicit CubicCongestionContrl(const CubicCongestionCtlConfig &ccConfig) : cubic_(DefaultClock::GetClock()) {
         cubic_.ResetCubicState();
-        cubic_.SetNumConnections(quic::kDefaultNumConnections);
+        cubic_.SetNumConnections(basefw::quic::kDefaultNumConnections);
     }
 
     ~CubicCongestionContrl() override {
@@ -39,7 +39,7 @@ public:
             if(InSlowStart()){
                 if(m_state == 0){
                     if(m_kcwnd < 2 * m_initkcwnd){
-                        m_kcwnd -= quic::kDefaultTCPMSS;
+                        m_kcwnd -= basefw::quic::kDefaultTCPMSS;
                     }else{
                         m_kcwnd /= 2;
                     }
@@ -60,9 +60,9 @@ public:
         if (ackEvent.valid) {
             SPDLOG_TRACE("ackEvent");
             if(InSlowStart()) {
-                m_kcwnd += quic::kDefaultTCPMSS;
+                m_kcwnd += basefw::quic::kDefaultTCPMSS;
             }else{
-                m_kcwnd = cubic_.CongestionWindowAfterAck(quic::kDefaultTCPMSS, m_kcwnd,
+                m_kcwnd = cubic_.CongestionWindowAfterAck(basefw::quic::kDefaultTCPMSS, m_kcwnd,
                                                           rttstats.MinOrInitialRtt(),ackEvent.recvstic);
                 if( m_kcwnd > m_kmaxCwnd){
                     m_kcwnd = m_kmaxCwnd;
@@ -72,7 +72,7 @@ public:
     }
 
     uint32_t GetCWND() override {
-        return BoundCwnd(m_kcwnd)/quic::kDefaultTCPMSS;
+        return BoundCwnd(m_kcwnd)/basefw::quic::kDefaultTCPMSS;
     }
 
     void UpdateState() override{
@@ -98,7 +98,7 @@ private:
         return std::max(m_kminCwnd, std::min(trySetCwnd, m_kmaxCwnd));
     }
 
-    quic::CubicBytes cubic_;
+    basefw::quic::CubicBytes cubic_;
 
     uint32_t m_kcwnd{3000};
     uint32_t m_initkcwnd{3000};
@@ -109,8 +109,8 @@ private:
 //    uint32_t m_minCwnd{1};
 //    uint32_t m_maxCwnd{128};
 
-    uint32_t m_kminCwnd = 1 * quic::kDefaultTCPMSS;
-    uint32_t m_kmaxCwnd = 128 * quic::kDefaultTCPMSS;
+    uint32_t m_kminCwnd = 1 * basefw::quic::kDefaultTCPMSS;
+    uint32_t m_kmaxCwnd = 128 * basefw::quic::kDefaultTCPMSS;
 //    uint32_t m_ssThresh{32};/** slow start threshold*/
     uint32_t m_kssThresh{32000};/** slow start threshold*/
 
