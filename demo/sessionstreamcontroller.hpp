@@ -48,7 +48,7 @@ public:
         if (cwnd >= downloadingPktCnt)
         {
 //            return std::min(cwnd - downloadingPktCnt, quic::MaxOneTimeSentCount);
-            return std::min(cwnd - downloadingPktCnt, 16U);
+            return std::min(cwnd - downloadingPktCnt, 8U);
         }
         else
         {
