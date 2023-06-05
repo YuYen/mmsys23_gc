@@ -300,9 +300,9 @@ private:
         // then send in each session
         for (auto &&it_sn = m_session_needdownloadpieceQ.begin();
              it_sn != m_session_needdownloadpieceQ.end(); ++it_sn) {
-            auto &sessId = it_sn->first;
-            auto &sessQueue = it_sn->second;
-            SPDLOG_TRACE("session Id:{}, session queue:{}", sessId.ToLogStr(), sessQueue);
+//            auto &sessId = it_sn->first;
+//            auto &sessQueue = it_sn->second;
+//            SPDLOG_TRACE("session Id:{}, session queue:{}", sessId.ToLogStr(), sessQueue);
             DoSendSessionSubTask(it_sn->first);
         }
 

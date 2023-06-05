@@ -266,6 +266,11 @@ public:
 
         auto now = clock_->Now().ToDebuggingValue();
         if (now - lastCheckedTime > checkPeriod){
+            lastCheckedTime = now;
+            if( m_congestionCtl->InSlowStart()){
+                return;
+            }
+
             auto curRttus = m_rttstats.SmoothedOrInitialRtt().ToMicroseconds();
             SPDLOG_DEBUG("check RTT pre: {}, cur: {}", preRTTus, curRttus);
 
@@ -275,7 +280,6 @@ public:
             }
 
             preRTTus = curRttus;
-            lastCheckedTime = now;
             checkPeriod = std::max( std::min(curRttus * 10, maxCheckPeriod), minCheckPeriod);
         }
     }

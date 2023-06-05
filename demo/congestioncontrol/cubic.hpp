@@ -44,7 +44,8 @@ public:
                         m_kcwnd /= 2;
                     }
                 }else{
-                    m_kcwnd = m_prekCwnd;
+                    m_kcwnd = std::max(m_kcwnd/2,  m_prekCwnd);
+                    m_state = 0;
                 }
 
             }else{
@@ -76,22 +77,28 @@ public:
     }
 
     void UpdateState() override{
-        if(!InSlowStart()){
+        if(!InSlowStart()) {
             m_prekCwnd = m_kcwnd;
-            m_kssThresh *= 2;
+            m_kssThresh = 4 * m_prekCwnd;
             m_state = 1;
         }
+
+//        if(!InSlowStart()){
+//            m_prekCwnd = m_kcwnd;
+////            m_kssThresh *= 2;
+//            m_kssThresh = 4 * m_prekCwnd;
+//            m_state = 1;
+//            return true;
+//        }
+//        return false;
     }
 
-private:
-
-
-
-    bool InSlowStart()
-    {
+    bool InSlowStart() override{
         return m_kcwnd < m_kssThresh;
 //        return m_cwnd < m_ssThresh;
     }
+
+private:
 
     uint32_t BoundCwnd(uint32_t trySetCwnd)
     {

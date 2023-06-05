@@ -154,6 +154,8 @@ public:
 
     virtual void UpdateState() = 0;
 
+    virtual bool InSlowStart() = 0;
+
 };
 
 /// config or setting for specific cc algo
@@ -219,8 +221,6 @@ public:
     void UpdateState() override{
     }
 
-private:
-
     bool InSlowStart()
     {
         bool rt = false;
@@ -259,6 +259,7 @@ private:
 
     }
 
+private:
     void ExitSlowStart()
     {
         SPDLOG_DEBUG("m_ssThresh:{}, m_cwnd:{}", m_ssThresh, m_cwnd);

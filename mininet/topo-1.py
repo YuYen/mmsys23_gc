@@ -120,7 +120,8 @@ if __name__ == '__main__':
     setLogLevel('info')
 
     # config
-    client_left_opts = {"bw": 1000, "delay": "10ms", "max_queue_size": 200}
+    # client_left_opts = {"bw": 1000, "delay": "10ms", "max_queue_size": 200}
+    client_left_opts = {"bw": 500, "delay": "10ms", "max_queue_size": 100}
     # btlink_opts = {"bw": 10, "delay": "30ms", "loss1": 1, "loss2": 1, "max_queue_size": 100}
     # serverlink_opts = [
     #     {"delay": "5ms"},
@@ -128,13 +129,34 @@ if __name__ == '__main__':
     #     {"delay": "15ms"},
     #     {"delay": "20ms"}
     # ]
-    btlink_opts = {"bw": 10, "delay": "10ms", "loss1": 5, "loss2": 5, "max_queue_size": 100}
+    # btlink_opts = {"bw": 10, "delay": "10ms", "loss1": 5, "loss2": 5, "max_queue_size": 100}
+
+    #######################
+    # btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 0, "loss2": 0, "max_queue_size": 10}
+    btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 1, "loss2": 1, "max_queue_size": 10}
+    # btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 2, "loss2": 2, "max_queue_size": 10}
+    # btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 3, "loss2": 3, "max_queue_size": 10}
+    # btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 4, "loss2": 4, "max_queue_size": 10}
+    # btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 5, "loss2": 5, "max_queue_size": 10}
+    # btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 6, "loss2": 6, "max_queue_size": 10}
+    # btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 7, "loss2": 7, "max_queue_size": 10}
+    # btlink_opts = {"bw": 2, "delay": "15ms", "loss1": 8, "loss2": 8, "max_queue_size": 10}
+    #######################
+    # btlink_opts = {"bw": 1.5, "delay": "15ms", "loss1": 0, "loss2": 0, "max_queue_size": 10}
     serverlink_opts = [
         {"delay": "5ms"},
-        {"delay": "10ms"},
         {"delay": "15ms"},
-        {"delay": "20ms"}
+        {"delay": "25ms"},
+        {"delay": "35ms"},
+        {"delay": "45ms"}
     ]
+    # serverlink_opts = [
+    #     {"delay": "5ms", "max_queue_size": 10},
+    #     {"delay": "15ms", "max_queue_size": 10},
+    #     {"delay": "25ms", "max_queue_size": 10},
+    #     {"delay": "35ms", "max_queue_size": 10},
+    #     {"delay": "45ms", "max_queue_size": 10}
+    # ]
     server_num = len(serverlink_opts)
 
     topo = DumbbellTopo(server_number=server_num,
